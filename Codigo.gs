@@ -1,9 +1,19 @@
 function myFunction() {
   // Obtener la hoja de cálculo activa
-  var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("FRAVA-Maritimo");
-  // Obtener los datos de la hoja de cálculo
+  var hojaMaritimo = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("FRAVA-Maritimo");
+  // Obtener la hoja de cálculo activa
+  var hojaAereo = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("FRAVA-Aereo");
+  // Obtener la hoja de cálculo activa
+  var hojaPaqueteria = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("FRAVA-Paquetería");
+
+  operacionHoja(hojaMaritimo,"Maritimo");
+  operacionHoja(hojaAereo,"Aereo");
+  operacionHoja(hojaPaqueteria,"Paqueteria");
+}
+
+function operacionHoja(hoja,nombreHoja){
+  Logger.log("Operacion de hoja " + nombreHoja );
   var data = hoja.getDataRange().getValues();
-  var numColumnas = data[5].length;
 
   // Fecha actual (sin la hora, solo fecha)
   var fechaActual = new Date();
@@ -17,6 +27,7 @@ function myFunction() {
   
   var campos = {};
 
+  var numColumnas = data[5].length;
   for (var x = 0; x < numColumnas; x++) { //empezamos en 0 por ser culimna A y 4 porque son 4 columnas en la hoja de panel de control
     var campoEncabezado = data[5][x];//queda fijo 5 porque es el numero de renglon de los encabezados
 
@@ -44,7 +55,7 @@ function myFunction() {
     }
   }
 
-Logger.log("campos " + JSON.stringify(campos));
+  Logger.log("campos " + JSON.stringify(campos));
 
   // Recorrer los datos
   for (var i = 6; i < data.length; i++) { // Empezar en 6 para omitir la fila de encabezado
@@ -63,9 +74,22 @@ Logger.log("campos " + JSON.stringify(campos));
       Logger.log("No se encontró información de contacto para el destinatario: " + idValor);
     }
 
-    var fechaEtd = data[i][17]; // Columna que contiene la fecha
+    switch (nombreHoja) {
+      case "Maritimo":
+        var fechaEtd = data[i][17]; // Columna que contiene la fecha
+        var fechaEta = data[i][18]; // Columna que contiene la fecha
+        break;
+      case "Aereo":
+        var fechaEtd = data[i][15]; // Columna que contiene la fecha
+        var fechaEta = data[i][16]; // Columna que contiene la fecha
+        break;
+      case "Paqueteria":
+        var fechaEtd = data[i][19]; // Columna que contiene la fecha
+        var fechaEta = data[i][20]; // Columna que contiene la fecha
+        break;
+    }
+
     fechaEtd.setHours(0, 0, 0, 0);
-    var fechaEta = data[i][18]; // Columna que contiene la fecha
     fechaEta.setHours(0, 0, 0, 0);
 
     // Verificar si la fecha en la casilla es futura con respecto al día actual
